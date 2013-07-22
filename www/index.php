@@ -6,7 +6,7 @@ if (isset($_GET['call'])) {
         filter_var($_GET['call'], FILTER_SANITIZE_STRING)
     );
     //localize
-    $number = preg_replace('/^+49/', '00', $number);
+    $number = preg_replace('/^(\+|00)49/', '00', $number);
 
     $callUrl = 'http://asterisk.nr/gemeinschaft/srv/pb-dial.php?n=' . $number;
 }
@@ -44,6 +44,10 @@ if (isset($_GET['call'])) {
     <li>
      Dann musst du auf <a href="http://asterisk.nr/">asterisk.nr</a>
      eingeloggt sein.
+    </li>
+    <li>
+     Jetzt kannst du auf die Telefonnummern in
+     <a href="http://adressbuch.nr/">adressbuch.nr</a> klicken.
     </li>
    </ul>
 
