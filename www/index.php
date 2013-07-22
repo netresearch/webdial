@@ -9,6 +9,8 @@ if (isset($_GET['call'])) {
     $number = preg_replace('/^(\+|00)49/', '00', $number);
 
     $callUrl = 'http://asterisk.nr/gemeinschaft/srv/pb-dial.php?n=' . $number;
+    header('Location: ' . $callUrl, 307);
+    exit(0);
 }
 ?>
 <html>
@@ -50,17 +52,6 @@ if (isset($_GET['call'])) {
      <a href="http://adressbuch.nr/">adressbuch.nr</a> klicken.
     </li>
    </ul>
-
-
-  <?php if ($number): ?>
-   <h2>Anrufen...</h2>
-   <p>
-    Rufe <?php echo htmlspecialchars($number); ?>:
-   </p>
-   <iframe src="<?php echo htmlspecialchars($callUrl);?>" height="50" width="200">
-    Rufe Asterisk auf..
-   </iframe>
-  <?php endif; ?>
 
    <h1>Test</h1>
    <p>
