@@ -5,6 +5,7 @@ function initWaehlscheibe()
    $('#dial').submit(function() {
        indicateDialling();
    });
+   $('#number').focus();
    handleCall();
 }
 
