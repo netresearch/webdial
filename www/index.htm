@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="de">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Telefonwählscheibe</title>
+  <meta http-equiv="pragma" content="no-cache" />
+  <meta http-equiv="cache-control" content="no-cache" />
+  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"/>
+  <script src="jquery-1.10.2.min.js"></script>
+  <script src="waehlscheibe.js"></script>
+ </head>
+ <body>
+  <div id="topheader">
+   <iframe name="nrnav" id="nrnav" frameborder="0" border="0" height="30px" width="100%"
+    scrolling="no" src="https://www.netresearch.de/corpnav-intern/telefon/">
+    netresearch navigation
+   </iframe>
+  </div>
+  <div id="content" class="container">
+   <h1>Telefonwählscheibe</h1>
+
+   <div class="row">
+    <div class="span6">
+
+     <h2>Anrufen</h2>
+     <form method="post" action="#" id="dial" class="form-inline" target="dialtarget">
+      <input id="number" name="NUMBER" type="text" value="" class="input-medium"/>
+      <input name="active_line" type="hidden" value="1"/>
+      <input name="DIAL" type="submit" value="Wählen" class="btn"/>
+     </form>
+
+     <div class="alert alert-success" id="dialling" style="display:none">
+      Wähle Nummer...
+     </div>
+
+     <!-- we do not want to get redirected, so we use an iframe -->
+     <iframe id="dialtarget" name="dialtarget" src="about:blank" style="width: 100%; height: 150px; display: none"></iframe>
+    </div>
+    <div class="span6">
+
+     <h2>Setup</h2>
+     <ul>
+      <li id="register-handler-support-error">
+       <span class="label label-important">error</span>
+       Dein Browser unterstützt Protokoll-Handler nicht.
+      </li>
+
+      <li id="register-phone-ok" style="display:none">
+       <span class="label label-success">ok</span>
+       Telefon-IP ist hinterlegt.
+       <a href="#" onclick="registerPhone();return false">ändern</a>
+      </li>
+      <li id="register-phone-error">
+       <span class="label label-important">error</span>
+       Dann deine
+       <a href="#" onclick="registerPhone();return false">
+        Telefon-IP hinterlegen
+       </a>
+      </li>
+
+      <li id="register-handler-ok" style="display:none">
+       <span class="label label-success">ok</span>
+       Wählscheibe ist für <tt>tel:</tt>-Links registriert
+      </li>
+      <li id="register-handler-error">
+       <span class="label label-important">error</span>
+       Zuerst musst du die
+       <a href="#" onclick="registerHandler();return false">
+        Wählscheibe für <tt>tel:</tt>-Links registrieren
+       </a>.
+      </li>
+      <li id="register-handler-unknown" style="display:none">
+       <span class="label label-warning">unknown</span>
+       Zuerst musst du die
+       <a href="#" onclick="registerHandler();return false">
+        Wählscheibe für <tt>tel:</tt>-Links registrieren
+       </a>.
+      </li>
+     </ul>
+
+     <h2>Test</h2>
+     <p>
+      Jetzt kannst du auf die Telefonnummern in
+      <a href="http://adressbuch.nr/">adressbuch.nr</a> klicken.
+     </p>
+     <p>
+      oder: <a href="tel:12345">tel:12345</a>
+     </p>
+
+    </div>
+   </div>
+
+   <p style="color: grey">
+    Code at
+    <a style="color: grey" href="https://gitorious.nr/netresearch-intern/waehlscheibe">waehlscheibe</a>.
+   </p>
+  </div>
+  <script type="text/javascript">
+   initWaehlscheibe();
+  </script>
+ </body>
+</html>
