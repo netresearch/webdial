@@ -2,10 +2,10 @@ function initWaehlscheibe()
 {
    checkRegistrationStatus();
    prepareDialling();
-   handleCall();
    $('#dial').submit(function() {
        indicateDialling();
    });
+   handleCall();
 }
 
 function getHandlerUrl()
@@ -112,11 +112,14 @@ function handleCall()
     }
 
     var number = oGetVars.call.replace('tel:', '');
+    //fix for snom phones; see NRTECH-1406
+    number = number
+        .replace(/^\+49/, '00')
+        .replace(/^0049/, '00');
 
     prepareDialling();
     $('#number').val(number);
     $('#dial').submit();
-    indicateDialling();
 }
 
 function prepareDialling()
