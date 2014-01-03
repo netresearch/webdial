@@ -130,6 +130,7 @@ function prepareDialling()
 
 function indicateDialling()
 {
+    $('#hangup').focus();
     $('#dialling').show('slow');
     window.setTimeout(
         function() {
