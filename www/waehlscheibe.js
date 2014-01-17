@@ -112,7 +112,9 @@ function handleCall()
         return false;
     }
 
-    var number = oGetVars.call.replace('tel:', '');
+    //double unescape for links from thunderbird, NRTECH-1590
+    var number = unescape(oGetVars.call).replace('tel:', '');
+
     //fix for snom phones; see NRTECH-1406
     number = number
         .replace(/^\+49/, '00')
