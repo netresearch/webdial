@@ -5,8 +5,29 @@ function initWaehlscheibe()
    $('#dial').submit(function() {
        indicateDialling();
    });
-   $('#number').focus();
+
+   var $number = $('#number');
+   $number.change(function() {
+       setNumber($number.val());
+   });
+   $number.focus();
+
    handleCall();
+}
+
+function setNumber(number)
+{
+    $('#number').val(
+        number
+        // Trim left
+        .replace(/^\s+/, '')
+        // Remove all non digits but a leading +
+        .replace(/(?!^)[^0-9]/g, '')
+        // Fix for snom phones; see NRTECH-1406
+        .replace(/^(\+|00)49/, '00')
+        // Rewrite one leading zero to two leading zeroes
+        .replace(/^(0[1-9])/, '0$1')
+    );
 }
 
 function getHandlerUrl()
@@ -115,13 +136,8 @@ function handleCall()
     //double unescape for links from thunderbird, NRTECH-1590
     var number = unescape(oGetVars.call).replace('tel:', '');
 
-    //fix for snom phones; see NRTECH-1406
-    number = number
-        .replace(/^\+49/, '00')
-        .replace(/^0049/, '00');
-
     prepareDialling();
-    $('#number').val(number);
+    setNumber(number);
     $('#dial').submit();
 }
 
