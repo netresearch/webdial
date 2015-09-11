@@ -17,8 +17,7 @@ function initWaehlscheibe()
 
 function setNumber(number)
 {
-    $('#number').val(
-        number
+    number = number
         // Trim left
         .replace(/^\s+/, '')
         // Remove all non digits but a leading +
@@ -26,8 +25,16 @@ function setNumber(number)
         // Fix for snom phones; see NRTECH-1406
         .replace(/^(\+|00)49/, '00')
         // Rewrite one leading zero to two leading zeroes
-        .replace(/^(0[1-9])/, '0$1')
-    );
+        .replace(/^(0[1-9])/, '0$1');
+
+    if (number.charAt(0) != 0 && number.length > 3) {
+        //NRTECH-1648: leading zero to dial out.
+        // number lengths <= 3 mean internal number which do not
+        // need a leading zero.
+        number = '0' + number;
+    }
+
+    $('#number').val(number);
 }
 
 function getHandlerUrl()
