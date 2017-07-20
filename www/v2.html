@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Telefonwählscheibe</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <style type="text/css">
+        #settings {
+            position: absolute;
+            top: 40px;
+            right:10px;
+            white-space: nowrap;
+            min-width: 300px;
+        }
+        #settings > span {
+            cursor: pointer;
+            float: right;
+        }
+        #settings > span:hover {
+            color: #000;
+        }
+        #settings > form {
+            display:none;
+        }
+        #settings .glyphicon-remove {
+            display:none;
+            position: absolute;
+            right: 12px;
+            top:10px;
+            cursor: pointer;
+        }
+        #content {
+            max-width: 300px;
+            margin: 0 auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="topheader">
+        <iframe name="nrnav" id="nrnav" frameborder="0" border="0" height="30px" width="100%"
+                scrolling="no" src="https://www.netresearch.de/corpnav-intern/telefon/">
+            netresearch navigation
+        </iframe>
+    </div>
+    <div id="content" class="container">
+        <iframe id="dialtarget" name="dialtarget" src="about:blank" style="width: 100%; height: 150px; display: none"></iframe>
+        <form action="#" method="post" target="dialtarget">
+            <input name="active_line" type="hidden" value="1"/>
+            <div class="input-group">
+                <input class="form-control" type="text" name="NUMBER" placeholder="Telefonnummer">
+                <span class="input-group-btn">
+                    <button type="submit" name="DIAL" value="1" class="btn btn-success"><span class="glyphicon glyphicon-earphone"></span></button>
+                    <button type="submit" name="HANGUP" value="1" class="btn btn-danger"><span class="glyphicon glyphicon-earphone"></span></button>
+                </span>
+            </div>
+        </form>
+        <div id="settings">
+            <span class="text-muted"><span class="glyphicon glyphicon-cog"></span> Einstellungen</span>
+            <form action="#">
+                <div class="well">
+                    <span class="glyphicon glyphicon-remove"></span>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="zoiper" value="1"/> Zoiper
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="host">Telefon</label>
+                        <input type="text" class="form-control" id="host" name="host" placeholder="KÜRZEL.telefon.nr oder Telefon-IP">
+                    </div>
+                    <button type="submit" class="btn btn-default">Save</button>
+                    <br><br><a class="registerHandler" href="#">Handler für tel:// registrieren</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.2.3.min.js"></script>
+    <script type="text/javascript">
+        function Dialer($form, $settingsForm, $settingsTogglers) {
+            var $zoiperCheckbox = $settingsForm.find('input[name=zoiper]').on('click change', function() {
+                    $hostInput.attr('disabled', $zoiperCheckbox.prop('checked'));
+                }),
+                $hostInput = $settingsForm.find('input[name=host]'),
+                $iframe = $('iframe[name=' + $form.attr('target') + ']'),
+                $number = $form.find('input[name=NUMBER]'),
+                $dial = $form.find('button[name=DIAL]'),
+                $hang = $form.find('button[name=HANGUP]').insertBefore($dial).hide(),
+                callActive = false,
+                config = (function() {
+                    this.reload = (function() {
+                        this.zoiper = parseInt(localStorage.getItem('zoiper')) ? true : false;
+                        this.host = localStorage.getItem('host');
+                        $form.attr('action', 'http://' + this.host + '/');
+                        $hostInput.attr('disabled', this.zoiper).val(this.host);
+                        $zoiperCheckbox.prop('checked', this.zoiper);
+                        return this;
+                    }).bind(this);
+                    return this.reload();
+                })(),
+                toggleSettings = function() {
+                    $settingsForm.toggle();
+                    $settingsTogglers.toggle();
+                },
+                setNumber = function (number) {
+                    number = number
+                    // Trim left
+                        .replace(/^\s+/, '')
+                        // Fix for snom phones; see NRTECH-1406
+                        .replace(/^(\+|00)49/, '00')
+                        .replace(/^\+/, '000')
+                        // Remove all non digits
+                        .replace(/[^0-9]/g, '')
+                        // Rewrite one leading zero to two leading zeroes
+                        .replace(/^(0[1-9])/, '0$1');
+
+                    if (number.charAt(0) != 0 && number.length > 3) {
+                        //NRTECH-1648: leading zero to dial out.
+                        // number lengths <= 3 mean internal number which do not
+                        // need a leading zero.
+                        number = '0' + number;
+                    }
+
+                    $number.val(number);
+                };
+
+            $number.change(function() {
+                setNumber($number.val());
+            });
+
+            $form.submit(function(e) {
+                if (!config.zoiper) {
+                    if (!config.host) {
+                        toggleSettings();
+                        return false;
+                    }
+                    if (callActive) {
+                        $hang.insertBefore($dial.show()).hide();
+                    } else {
+                        $dial.insertBefore($hang.show()).hide();
+                    }
+                    callActive = !callActive;
+                } else {
+                    e.preventDefault();
+                    location.href = 'zoiper://' + $number.val();
+                }
+                if (callActive || config.zoiper) {
+                    var alert = $('<div class="alert alert-success">Wähle</div>').appendTo($form.parent()).hide().show('slow');
+                    window.setTimeout(
+                        (function() {
+                            this.hide('slow', (function () { this.remove() }).bind(this));
+                        }).bind(alert),
+                        2000
+                    );
+                }
+            });
+
+            $settingsTogglers.click(toggleSettings);
+            $settingsForm.submit(function(e) {
+                e.preventDefault();
+
+                var zoiper = $zoiperCheckbox.prop('checked')
+                    host = $hostInput.val();
+                if (!zoiper && !host) {
+                    $hostInput.parent().addClass('has-error');
+                } else {
+                    $hostInput.parent().removeClass('has-error');
+                    localStorage.setItem('zoiper', zoiper ? '1' : '0');
+                    localStorage.setItem('host', host || '');
+                    config.reload();
+                    toggleSettings();
+                }
+            });
+
+            // Start call when ?call=number was passed
+            if (window.location.search.length > 0) {
+                var oGetVars = {};
+                for (var aItKey, nKeyId = 0, aCouples = window.location.search.substr(1).split("&"); nKeyId < aCouples.length; nKeyId++) {
+                    aItKey = aCouples[nKeyId].split("=");
+                    oGetVars[unescape(aItKey[0])] = aItKey.length > 1 ? unescape(aItKey[1]) : "";
+                }
+                if (oGetVars.call && oGetVars.call != '') {
+                    //double unescape for links from thunderbird, NRTECH-1590
+                    setNumber(unescape(oGetVars.call).replace(/^tel:\/{0,2}/, ''));
+                    console.log(oGetVars.call);
+                    $dial.click();
+                }
+            }
+
+            // Register handler
+            $('.registerHandler').click(function() {
+                var loc = document.location.href;
+                window.navigator.registerProtocolHandler(
+                    'tel', loc.replace(/#.*/, '') + '?call=%s', 'Telefonwählscheibe'
+                );
+                return false;
+            });
+        }
+        new Dialer($('#content > form'), $('#settings > form'), $('#settings > span, #settings > form span'));
+    </script>
+</body>
+</html>
